@@ -6,4 +6,4 @@ class Token:
         self.coluna = coluna
 
     def imprimeToken(self):
-        return '[{}, ({}), {}, {}]'.format(self.tipo, self.valor, self.linha, self.coluna)
+        return '<[{}], [{}], [{}, {}]>'.format(self.tipo, self.valor, self.linha, self.coluna)

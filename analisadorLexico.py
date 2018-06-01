@@ -7,15 +7,12 @@ class Lexico(object):
         self.codigoFonte = codigoFonte
 
     def criarTokens(self):
-        palavrasReservadas = ["float", "int", "void", "package", "import", "public", "private", "class", "static"]
-        operadores = ["+", "-", "/", "%", "*", "="]
+        palavrasReservadas = ["abstract", "extends", "int", "protected", "this", "boolean", "false", "new", "public", "true", "char", "import", "null", "return", "void", "class", "if", "package", "static", "while","else", "instanceof", "private", "super"]
+        operadores = ["+", "++", "-", "--", "/", "%", "*", "=", "+=", "==", "&&", ">", "<=", "instanceof"]
+        delimitadores = [',', '.', '[', '{', '(', ')', '}', ']', ';']
 
-        #print('entrou no criarTokens\n')
         # variavel onde todos os tokens serao armazenados
         tokens = []
-
-        #for linhas in self.codigoFonte:
-            #print(linhas); 
 
         # cria uma lista com as  palavras contidas no codigo fonte
         listaPalavras = self.codigoFonte.split()
@@ -27,17 +24,20 @@ class Lexico(object):
 
         # percorre listaPalavras
         while palavraIndice < len(listaPalavras):
-            #print(listaPalavras[palavraIndice])
             palavra = listaPalavras[palavraIndice]
 
             # identifica palavra VAR
-            if palavra == "var":
-                novoToken = token.Token(palavra, "ID_VAR", 0, 0)
-                tokens.append(novoToken)
-            # identifica palavras reservadas
-            elif palavra in palavrasReservadas: 
-                novoToken = token.Token(palavra, "RESERVADA", 0, 0)
-                tokens.append(novoToken)
+            if palavra in palavrasReservadas: 
+                # se o ultimo indice do reservado tiver ';', ele e retirado e o token armazenado
+                # senao tiver ';' o reservado e armazenado de uma vez
+                if (palavra[len(palavra) - 1] == ";"):
+                    novoToken = token.Token(palavra[0:len(palavra) -1], "RESEVADA", 0, 0)
+                    tokens.append(novoToken)
+                else:    
+                    novoToken = token.Token(palavra, "RESERVADA", 0, 0)
+                    tokens.append(novoToken)
+                #novoToken = token.Token(palavra, "RESERVADA", 0, 0)
+                #tokens.append(novoToken)
             # identifica  nomes de variaveis -> identificadores
             elif (re.match('[a-z]', palavra) or re.match('[A-Z]', palavra)):
                 # se o ultimo indice do identificador tiver ';', ele e retirado e o token armazenado
@@ -62,13 +62,18 @@ class Lexico(object):
             elif palavra in operadores: 
                 novoToken = token.Token(palavra, "OPERADOR", 0, 0)
                 tokens.append(novoToken)
+            # identifica delimitadores    
+            elif palavra in delimitadores:
+                novoToken = token.Token(palavra, "DELIMITADOR", 0, 0)
+                tokens.append(novoToken)
 
             # identifica fim de linha quando não estando junto a um outro token e quando sim
+            # caso especial de delimitador
             if palavra == ";":
-                novoToken = token.Token(";", "EXPRESSAO_FIM", 0, 0)
+                novoToken = token.Token(";", "DELIMITADOR", 0, 0)
                 tokens.append(novoToken)
             elif (palavra[len(palavra) - 1] == ";"):
-                novoToken = token.Token(";", "EXPRESSAO_FIM", 0, 0)
+                novoToken = token.Token(";", "DELIMITADOR", 0, 0)
                 tokens.append(novoToken)
 
             palavraIndice += 1
