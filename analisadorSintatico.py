@@ -7,11 +7,22 @@ class Parser(object):
         while self.tokenIndice < len(self.tokens):
             tipoToken = self.tokens[self.tokenIndice][0]
             valorToken = self.tokens[self.tokenIndice][1]
+            #print(tipoToken, valorToken)
 
-            print(tipoToken, valorToken)
+            if (tipoToken == "ID_VAR" and valorToken == "var"):
+                #print(tipoToken, valorToken)
+                self.parserVar(self.tokens[self.tokenIndice:len(self.tokens)])
+            #elif (tipoToken == "RESERVADA"):
+                #print(tipoToken, valorToken)    
 
             self.tokenIndice += 1    
-        
+
+    def parserVar(self, streamToken):        
+        #print(streamToken)
+        tokensChecados = 0
+
+        #for token in range(0, len(streamToken)):
+            
 
 # classe dos nós da árvore
 class noElemento:
@@ -34,5 +45,5 @@ class arvoreBinaria:
         else:
             self._insert(valor, self.raiz)    
 
-    def _inserir(self, valor, noAtual):
+    #def _inserir(self, valor, noAtual):
 
