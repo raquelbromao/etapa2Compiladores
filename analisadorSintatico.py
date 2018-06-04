@@ -12,6 +12,10 @@ class Parser(object):
         self.tokenIndice = 0
 
     def qualifiedIdentifier(self, token):
+        '''
+            REGRA:
+            qualifiedIdentifier ::= <identifier> {. <identifier> }
+        '''
         #print('Atual tokenIndice = {}'.format(self.tokenIndice))   
         if (token.tipo == 'IDENTIFICADOR'):
             return True
@@ -19,6 +23,12 @@ class Parser(object):
             return False    
 
     def compilationUnit(self, token):   
+        '''
+            REGRA:
+            compilationUnit ::= [package qualifiedIdentifier ;]
+                                {import qualifiedIdentifier ;}
+                                {typeDeclaration} EOF
+        '''
         modifiers = ["public", "protected", "private", "static", "abstract"]
 
         print('@CompilationUnit_____________________________________________')
