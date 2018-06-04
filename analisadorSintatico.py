@@ -1,27 +1,3 @@
-# classe da árvore Binária
-class AST:
-    # inicializa a árvore da expressão (exp) com a raiz nula
-    def __init__(self):
-        self.raiz = None
- 
-    # função que insere valores na árvore da exp
-    def inserir(self, token):
-        if self.raiz == None:
-            self.raiz = noElemento(token)
-        #else:
-            #self._insert(token, self.raiz)
-
-# classe dos nós da árvore
-class noElemento:
-    # inicia um nó criando seu valor e dois filhos com valor nulo
-    def __init__(self, token):
-        self.token = token
-        self.filhoEsquerdo = None
-        self.filhoDireito = None
-
-    def imprimeNo(self):
-        return '<[{}], [({})|({})]>'.format(self.token.tipo, self.filhoEsquerdo, self.filhoDireito)   
-
 class compilationUnit:
     def __init__(self, token, indice):
         self.token = token
@@ -34,19 +10,50 @@ class Parser(object):
     def __init__(self, tokens):
         self.tokens = tokens
         self.tokenIndice = 0
-        #self.AST = AST()
-        #self.tipos = ['DELIMITADOR', 'OPERADOR', 'RESERVADA', 'IDENTIFICADOR', 'NUMERO', 'STRING']
+
+    def qualifiedIdentifier(self, token):
+        #print('Atual tokenIndice = {}'.format(self.tokenIndice))   
+        if (token.tipo == 'IDENTIFICADOR'):
+            return True
+        else: 
+            return False    
+
+    def compilationUnit(self, token):   
+        # CHECA EXISTÊNCIA DE PACKAGES
+        if (token.valor == "package"): 
+            print('@CompilationUnit:    < {} >'.format(token.valor))
+
+            #  CHECA NOME DO PACOTE
+            self.tokenIndice += 1
+            proximoToken = self.tokens[self.tokenIndice];
+            #self.qualifiedIdentifier(proximoToken)
+            if (self.qualifiedIdentifier(proximoToken)):
+                print('\t@QualifiedIdentifier:  < {} >'.format(proximoToken.valor))
+            else: 
+                print('@QualifiedIdentifier:\n\tERRO: [faltando < ; > para concluir!]')
+
+            #  CHECA SE POSSUI DELIMITADOR_FIM
+            self.tokenIndice += 1
+            proximoToken = self.tokens[self.tokenIndice];
+            if (proximoToken.valor == ';'):
+                print('\t\t@Delimitador:  < ; >')
+            else: 
+                print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')
+        else: 
+            print('@CompilationUnit:\n\tERRO: [sem package! Necessário criar um!]')     
         
     # inicia o parser
     def parse(self):      
-        primeiroToken = self.tokens[0]
-        # para cada token analisa o tipo para analisar a sua determinada regra
-        #if (primeiroToken.valor == 'package' or primeiroToken.valor == 'import' or ):
-        while self.tokenIndice < len(self.tokens):
-            tokenAtual = self.tokens[self.tokenIndice]
-            print(tokenAtual.imprimeToken())
+        # tokenIndice = 0 
+        primeiroToken = self.tokens[self.tokenIndice]
 
-            if (tokenAtual.tipo == 'package' or tokenAtual.tipo == 'package'):
-                novaCompilationUnit = compilationUnit(tokenAtual, self.tokenIndice)
-                novaCompilationUnit.imprimeCompUnit()
-            break    
+        # checa regra de compilationUnit
+        if (self.compilationUnit(primeiroToken)):
+            return True
+        else:
+            return False    
+        
+
+            
+
+    

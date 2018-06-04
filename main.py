@@ -23,16 +23,16 @@ def main():
     print("\tCriando os tokens...")
     tokens = scan.criarTokens()
     # testa criacao dos tokens
-    print('\nTokens: ')
+    '''print('\nTokens: ')
     for token in tokens:
-        print(token.imprimeToken())
+        print(token.imprimeToken())'''
 
     # inicia o analisaodor sintatico
-    '''print("\nIniciando a análise sintática...")
+    print("\nIniciando a análise sintática...")
     parse = analisadorSintatico.Parser(tokens)
     # inicia o parser
     print("\tIniciando o parser...\n")
-    parse.parse()'''
+    parse.parse()
 
     print("\nFim da compilação!")
 
