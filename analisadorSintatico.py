@@ -19,9 +19,12 @@ class Parser(object):
             return False    
 
     def compilationUnit(self, token):   
+        modifiers = ["public", "protected", "private", "static", "abstract"]
+
+        print('@CompilationUnit_____________________________________________')
         # CHECA EXISTÊNCIA DE PACKAGES
         if (token.valor == "package"): 
-            print('@CompilationUnit:    < {} >'.format(token.valor))
+            print('@Reserved:    < {} >'.format(token.valor))
 
             #  CHECA NOME DO PACOTE
             self.tokenIndice += 1
@@ -39,6 +42,23 @@ class Parser(object):
                 print('\t\t@Delimitador:  < ; >')
             else: 
                 print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')
+
+            # CHECA SE POSSUI IMPORTS
+            self.tokenIndice += 1
+            proximoToken = self.tokens[self.tokenIndice]
+            # CHECA IMPORTS
+            if (proximoToken.valor == 'import'):
+                # funcao checa imports
+                #qualifiedIdentifier(proximoToken)
+                print('@Reserved:   < {} >'.format(proximoToken.valor));
+            # CHECA DECLARAÇÃO DE CLASSES    
+            elif (proximoToken.valor in modifiers):
+                #typeDeclaration(proximoToken)
+                print('@Modifier:   < {} >'.format(proximoToken.valor));  
+            # CHECA ERROS    
+            else:
+                print('@Other:   < {} >'.format(proximoToken.valor));          
+
         else: 
             print('@CompilationUnit:\n\tERRO: [sem package! Necessário criar um!]')     
         

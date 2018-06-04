@@ -1,4 +1,4 @@
-package pass ;
+package pass;
 
 public main {
     int fog = 98;
