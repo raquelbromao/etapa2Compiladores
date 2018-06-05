@@ -1,4 +1,5 @@
 package pass;
+import guru;
 
 public class main {
     int fog = 98;
