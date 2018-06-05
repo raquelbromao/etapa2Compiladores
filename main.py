@@ -29,7 +29,7 @@ def main():
 
     # inicia o analisaodor sintatico
     print("\nIniciando a análise sintática...")
-    parse = analisadorSintatico.Parser(tokens)
+    parse = analisadorSintatico.Parser(tokens, tokens[0])
     # inicia o parser
     print("\tIniciando o parser...\n")
     parse.parse()

@@ -10,9 +10,10 @@ class AST:
         self.indice = indice
 
 class Parser(object):
-    def __init__(self, tokens):
+    def __init__(self, tokens, tokenAtual):
         self.tokens = tokens
         self.tokenIndice = 0
+        self.tokenAtual = tokenAtual
 
     def classBody(self, token):
         '''
@@ -30,20 +31,23 @@ class Parser(object):
         if (token.valor == 'class'):
             print('\t@Reserved:    < {} >'.format(token.valor))
 
-            self.tokenIndice += 1
-            proximoToken = self.tokens[self.tokenIndice]
+            self.proximoToken()
 
             # VERIFICA EXISTÊNCIA DE NOME PARA A CLASSE
-            if (self.analisaIdentificador(proximoToken)):
-                print('\t\t@Identificador:    < {} >'.format(proximoToken.valor))
+            if (self.analisaIdentificador(self.tokenAtual)):
+                print('\t\t@Identificador:    < {} >'.format(self.tokenAtual.valor))
 
-                self.tokenIndice += 1
-                proximoToken = self.tokens[self.tokenIndice]
+                self.proximoToken()
 
-                #Analisa Corpo da Classe
-                if (proximoToken.valor == 'extends'):
-                    print('\t\t\tuepa')    
+                #Analisa se possui extensões
+                if (self.tokenAtual.valor == 'extends'):
+                    print('\t\t\t@Reserved:    < {} >'.format(self.tokenAtual.valor))
 
+                    self.proximoToken()  
+
+                    if (self.qualifiedIdentifier(self.tokenAtual)):
+                        print('\t\t\t\t@Identificador:    < {} >'.format(self.tokenAtual.valor))    
+                
             else:
                 print('\t\t@Identificador: ERRO: [nome da class não é identificador! por favor, dê outro nome')  
                 return False
@@ -76,11 +80,10 @@ class Parser(object):
         if (self.modifiers(token)):
             print('@Reserved:    < {} >'.format(token.valor))
 
-            self.tokenIndice += 1
-            proximoToken = self.tokens[self.tokenIndice]
+            self.proximoToken()
 
             # ANALISA CLASSDECLARATION
-            self.classDeclaration(proximoToken)
+            self.classDeclaration(self.tokenAtual)
 
         else:
             print('@Reserved: ERRO: [faltando modificar para a classe]')
@@ -92,7 +95,11 @@ class Parser(object):
             qualifiedIdentifier ::= <identifier> {. <identifier> }
         '''
         #print('Atual tokenIndice = {}'.format(self.tokenIndice))   
+        #contador = 0
+
         if (token.tipo == 'IDENTIFICADOR'):
+            #contador += 1
+            #print('[{}]'.format(contador))
             return True
         else: 
             return False    
@@ -106,18 +113,16 @@ class Parser(object):
     def analisaPackage(self, token):
         print('@Reserved:    < {} >'.format(token.valor))
             
-        self.tokenIndice += 1
-        proximoToken = self.tokens[self.tokenIndice]
+        self.proximoToken()
 
-        if (self.qualifiedIdentifier(proximoToken)):
-            print('\t@QualifiedIdentifier:  < {} >'.format(proximoToken.valor))
+        if (self.qualifiedIdentifier(self.tokenAtual)):
+            print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
         else: 
             print('@QualifiedIdentifier:\n\tERRO: [faltando < ; > para concluir!]')
 
-        self.tokenIndice += 1
-        proximoToken = self.tokens[self.tokenIndice]
+        self.proximoToken()
 
-        if (proximoToken.valor == ";"):
+        if (self.tokenAtual.valor == ";"):
             print('\t\t@Delimitador:  < ; >')
         else:
             print('@Delimitador:\n\tERRO: [faltando < ; > para concluir!]')  
@@ -130,18 +135,16 @@ class Parser(object):
     def analisaImport(self, token):
         print('@Reserved:    < {} >'.format(token.valor))
             
-        self.tokenIndice += 1
-        proximoToken = self.tokens[self.tokenIndice]
+        self.proximoToken()
 
-        if (self.qualifiedIdentifier(proximoToken)):
-            print('\t@QualifiedIdentifier:  < {} >'.format(proximoToken.valor))
+        if (self.qualifiedIdentifier(self.tokenAtual)):
+            print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
         else: 
             print('@QualifiedIdentifier:\n\tERRO: [faltando < ; > para concluir!]')
 
-        self.tokenIndice += 1
-        proximoToken = self.tokens[self.tokenIndice]
+        self.proximoToken()
 
-        if (proximoToken.valor == ";"):
+        if (self.tokenAtual.valor == ";"):
             print('\t\t@Delimitador:  < ; >')
         else:
             print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')  
@@ -164,50 +167,41 @@ class Parser(object):
 
         # CHECA SE PRIMEIRO TOKEN É PACKAGE
         if (token.valor == "package" and self.analisaPackage(token)): 
-            self.tokenIndice += 1
-            proximoToken = self.tokens[self.tokenIndice]
+            self.proximoToken()
 
             # CHECA SE EXISTEM IMPORTS
-            if (proximoToken.valor == "import" and self.analisaImport(proximoToken)):
-                self.tokenIndice += 1
-                proximoToken = self.tokens[self.tokenIndice]
+            if (self.tokenAtual.valor == "import" and self.analisaImport(self.tokenAtual)):
+                self.proximoToken()
 
                 # CHECA SE EXISTEM CLASSES
-                if (proximoToken.valor in modifiers and self.typeDeclaration(proximoToken)):
-                    self.tokenIndice += 1
-                    proximoToken = self.tokens[self.tokenIndice]
+                if (self.tokenAtual.valor in modifiers and self.typeDeclaration(self.tokenAtual)):
+                    self.proximoToken()
 
             # CASO NÃO HAJA IMPORTS CHECA SE EXISTE DECLARAÇÃO DE CLASSES
-            elif (proximoToken.valor in modifiers and self.typeDeclaration(proximoToken)):
-                print('uepa')
-                self.tokenIndice += 1
-                proximoToken = self.tokens[self.tokenIndice] 
+            elif (self.tokenAtual.valor in modifiers and self.typeDeclaration(self.tokenAtual)):
+                self.proximoToken()
 
         # CHECA SE PRIMEIRO TOKEN É IMPORT
-        elif (token.valor == "import" and self.analisaImport(token)):
-            self.tokenIndice += 1
-            proximoToken = self.tokens[self.tokenIndice]
+        elif (self.tokenAtual.valor == "import" and self.analisaImport(self.tokenAtual)):
+            self.proximoToken()
 
-            if (proximoToken.valor in modifiers and self.typeDeclaration(proximoToken)):
-                print('uepa')
-                self.tokenIndice += 1
-                proximoToken = self.tokens[self.tokenIndice]
+            if (self.tokenAtual.valor in modifiers and self.typeDeclaration(self.tokenAtual)):
+                self.proximoToken()
 
         # CHECA SE PRIMEIRO TOKEN É MODIFICADOR DE CLASSE   
-        elif (token.valor in modifiers and self.typeDeclaration(token)):
-            print('uepa')
-            self.tokenIndice += 1
-            proximoToken = self.tokens[self.tokenIndice]     
+        elif (self.tokenAtual.valor in modifiers and self.typeDeclaration(self.tokenAtual)):
+            self.proximoToken()           
 
         return True         
         
+    def proximoToken(self):
+        self.tokenIndice += 1
+        self.tokenAtual = self.tokens[self.tokenIndice]
+
     # inicia o parser
     def parse(self):      
-        # tokenIndice = 0 
-        primeiroToken = self.tokens[self.tokenIndice]
-
         # checa regra de compilationUnit
-        if (self.compilationUnit(primeiroToken)):
+        if (self.compilationUnit(self.tokenAtual)):
             return True
         else:
             return False      
