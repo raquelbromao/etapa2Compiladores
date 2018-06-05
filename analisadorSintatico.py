@@ -25,70 +25,62 @@ class Parser(object):
             REGRA:
             classDeclaration ::= class <identifier> [extends qualifiedIdentifier] classBody
         '''
-        # Analisa existência da p.reservada 'class'
+
+        # VERIFICA EXISTÊNCIA DE CLASS
         if (token.valor == 'class'):
+            print('\t@Reserved:    < {} >'.format(token.valor))
+
             self.tokenIndice += 1
             proximoToken = self.tokens[self.tokenIndice]
 
-            # Analisa nome da classe
-            if (proximoToken.tipo == 'IDENTIFICADOR'):
-                print('\t\t@Identifier:   < {} >'.format(proximoToken.valor))
+            # VERIFICA EXISTÊNCIA DE NOME PARA A CLASSE
+            if (self.analisaIdentificador(proximoToken)):
+                print('\t\t@Identificador:    < {} >'.format(proximoToken.valor))
 
                 self.tokenIndice += 1
                 proximoToken = self.tokens[self.tokenIndice]
 
+                #Analisa Corpo da Classe
                 if (proximoToken.valor == 'extends'):
-                    self.tokenIndice += 1
-                    proximoToken = self.tokens[self.tokenIndice]
-                    if (self.qualifiedIdentifier(proximoToken)):
-                        print('\t\t\t@qualifiedIdentifier:   < {} >'.format(proximoToken.valor))
-                    else:
-                        print('@QualifiedIdentifier:\n\t\t\tERRO: [faltando nome dos extends!]')   
-                else:
-                    self.classBody(proximoToken)        
-            else:
-                print('\t\t@Identifier: ERRO: [faltando nome da classe! necessário um!]')    
-        #else:
-            #print('\t@classDeclaration: ERRO: [faltando < class >!]')        
+                    print('\t\t\tuepa')    
 
+            else:
+                print('\t\t@Identificador: ERRO: [nome da class não é identificador! por favor, dê outro nome')  
+                return False
+
+        else:
+            print('\t@Reserved: ERRO: [faltando < class >]')
+            return False
+
+        return True
+
+    def modifiers(self, token):
+        '''
+            REGRA:
+            modifiers ::= {public | protected | private | static | abstratc}
+        '''
+        modifiers = ["public", "protected", "private", "static", "abstract"]    
+
+        if (token.valor in modifiers):
+            return True
+        else:
+            return False        
+        
     def typeDeclaration(self, token):   
         '''
             REGRA:
             typeDeclaration ::= modifiers classDeclaration
         '''
 
-        modifiers = ["public", "protected", "private", "static", "abstract"]
-
-        # VERIFICA EXISTENCIA MODIFICADOR
-        if (token.valor in modifiers):
+        # VERIFICA EXISTENCIA DE MODIFICADOR
+        if (self.modifiers(token)):
             print('@Reserved:    < {} >'.format(token.valor))
 
             self.tokenIndice += 1
             proximoToken = self.tokens[self.tokenIndice]
 
-            # VERIFICA EXISTÊNCIA DE CLASS
-            if (proximoToken.valor == 'class'):
-                print('\t@Reserved:    < {} >'.format(proximoToken.valor))
-
-                self.tokenIndice += 1
-                proximoToken = self.tokens[self.tokenIndice]
-
-                # VERIFICA EXISTÊNCIA DE NOME PARA A CLASSE
-                if (self.analisaIdentificador(proximoToken)):
-                    print('\t\t@Identificador:    < {} >'.format(proximoToken.valor))
-
-                    self.tokenIndice += 1
-                    proximoToken = self.tokens[self.tokenIndice]
-
-                else:
-                    print('\t\t@Identificador: ERRO: [nome da class não é identificador! por favor, dê outro nome')  
-                    return False
-
-            else:
-                print('\t@Reserved: ERRO: [faltando < class >]')
-                return False
-
-            return True
+            # ANALISA CLASSDECLARATION
+            self.classDeclaration(proximoToken)
 
         else:
             print('@Reserved: ERRO: [faltando modificar para a classe]')
