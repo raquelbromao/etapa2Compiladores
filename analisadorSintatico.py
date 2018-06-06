@@ -556,9 +556,6 @@ class Parser(object):
         else:
             return False
 
-    def variableDeclarators(self):
-        pass    
-
     def creator(self):
         '''
         REGRA:
@@ -868,7 +865,7 @@ class Parser(object):
         #print('Atual tokenIndice = {}'.format(self.tokenIndice))   
         #contador = 0
 
-        if (self.tokenAtual.tipo == 'IDENTIFICADOR'):
+        if (self.tokenAtual.tipo == 'IDENTIFIER'):
             #contador += 1
             #print('[{}]'.format(contador))
             return True
@@ -876,7 +873,7 @@ class Parser(object):
             return False    
 
     def analisaIdentificador(self):
-        if (self.tokenAtual.tipo == 'IDENTIFICADOR'):
+        if (self.tokenAtual.tipo == 'IDENTIFIER'):
             return True
         else:
             return False    

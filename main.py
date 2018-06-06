@@ -6,26 +6,28 @@ def main():
     conteudo = ''
 
     # le o arquivo com o codigo fonte
-    with open('./arquivosTeste/teste1.j', 'r') as arquivo:
+    '''with open('./arquivosTeste/teste1.j', 'r') as arquivo:
         conteudo = arquivo.read()
     # teste se pegou o conteudo    
-    #print(conteudo+'\n')
+    #print(conteudo+'\n')'''
 
     ''' with open('./arquivosTeste/teste1.j') as arquivo:
     for linha in arquivo:
     if "//" in linha:
     continue '''
 
+    arquivo = './arquivosTeste/listaTokens.j'
+
     # inicia o analisador lexico
     print("\nIniciando análise léxica...")
-    scan = analisadorLexico.Lexico(conteudo)
+    scan = analisadorLexico.Anallex()
     # cria os tokens
     print("\tCriando os tokens...")
-    tokens = scan.criarTokens()
+    tokens = scan(arquivo)
     # testa criacao dos tokens
-    '''print('\nTokens: ')
-    for token in tokens:
-        print(token.imprimeToken())'''
+    print('\nTokens: ')
+    '''for token in tokens:
+        print('{}|{}'.format(token.tipo, token.valor))'''
 
     # inicia o analisaodor sintatico
     print("\nIniciando a análise sintática...")
