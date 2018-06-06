@@ -15,6 +15,37 @@ class Parser(object):
         self.tokenIndice = 0
         self.tokenAtual = tokenAtual
 
+    def literal(self):
+        '''
+            REGRA:
+                literal ::= <int_literal> | <char_literal> | <string_literal> | true | false | null
+        '''    
+        # Verifica se é true
+        if (self.tokenAtual.valor == 'true'):
+            return True
+        # Verifica se é false    
+        elif (self.tokenAtual.valor == 'false'):
+            return True
+        # Verifica se é null    
+        elif (self.tokenAtual.valor == 'null'):
+            return True
+        # Verifica se é tipo NUMERO -> sendo então <int_literal>    
+        elif (self.tokenAtual.tipo == 'NUMERO'):
+            return True  
+        # Verifica se é tipo identificador -> podendo ser ou <char_literal> ou <string_literal>
+        # Foram usadas as seguintes regras para analisar via expressão regular:
+        # <char_literal> = <"> <token que é ID e tem tamanho 1 e que só tem letra do alfabeto> <">
+        # <string_literal> = <"> <> <">
+        elif (self.tokenAtual.valor == ' \" '):
+            self.proximoToken();
+            contadorWhile = 0
+            # para <char_literal>
+            if (len[self.tokenAtual.valor] == 1 and analisaIdentificador()):
+
+        # ERRO    
+        else:
+            return False    
+
     def variableInitializer(self):
         '''
             REGRA:
