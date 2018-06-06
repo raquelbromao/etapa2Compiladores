@@ -34,8 +34,7 @@ class Parser(object):
             # para <char_literal>
             if (len[self.tokenAtual.valor] == 1 and analisaIdentificador()):
                 aux = self.tokenAtual.valor
-                re.
-
+                re.match('\D|[\s]|[\t]', aux)
         # ERRO    
         else:
             return False    
@@ -393,25 +392,21 @@ class Parser(object):
 
     def analisaImport(self):
         print('@Reserved:    < {} >'.format(self.tokenAtual.valor))
-            
         self.proximoToken()
 
         if (self.qualifiedIdentifier()):
             print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
+            self.proximoToken()
+
+            if (self.tokenAtual.valor == ";"):
+                print('\t\t@Delimitador:  < ; >')
+                return True
+            else:
+                print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')
+                return False
         else: 
             print('@QualifiedIdentifier:\n\tERRO: [faltando < ; > para concluir!]')
-
-        self.proximoToken()
-
-        if (self.tokenAtual.valor == ";"):
-            print('\t\t@Delimitador:  < ; >')
-        else:
-            print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')  
-
-        #self.tokenIndice += 1
-        #proximoToken = self.tokens[self.tokenIndice];
-
-        return True
+            return False
 
     def compilationUnit(self):   
         '''
@@ -464,7 +459,10 @@ class Parser(object):
 
     def ultimoToken(self):
         self.tokenIndice -= 1
-        self.tokenAtual = self.tokens[self.tokenIndice]        
+        self.tokenAtual = self.tokens[self.tokenIndice]  
+
+    def salvaToken(self):
+        pass    
 
     # inicia o parser
     def parse(self):      
