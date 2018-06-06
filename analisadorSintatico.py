@@ -15,11 +15,74 @@ class Parser(object):
         self.tokenIndice = 0
         self.tokenAtual = tokenAtual
 
+    def basicType(self):
+        '''
+            REGRA:
+                basicType ::= boolean | char | int
+        '''
+        tipo = ["boolean", "char", "int"]
+
+        if (self.tokenAtual.valor in tipo):
+            return True
+        else:
+            return False        
+
+    def referenceType(self):
+        '''
+            REGRA:
+                referenceType ::= basicType [ ] {[ ]} | qualifiedIdentifier {[ ]}
+        '''
+
+        # Verifica se começa com tipo básico
+        if (self.basicType()):
+
+            self.proximoToken()
+
+            # verifica se é vetor/lista
+            if (self.tokenAtual == '['):
+                self.proximoToken()
+                if (self.tokenAtual == ']'):
+                    return True
+                else:
+                    return False
+            else:
+                return False        
+        # Verifica se começa com identificador
+        elif (self.qualifiedIdentifier()) :
+
+            self.proximoToken()
+
+            # verifica se é vetor/lista
+            if (self.tokenAtual == '['):
+                self.proximoToken()
+                if (self.tokenAtual == ']'):
+                    return True
+                else:
+                    return False
+            elif (self.tokenAtual == ']'):
+                return False
+            else:
+                return True    
+        # Erro  
+        else:
+            return False
+
     def variableDeclarators(self):
         pass    
 
     def typeAnalyser(self):
-        pass
+        '''
+            REGRA:
+                type ::= referenceType | basicType
+        '''
+        # Verifica se o tipo é vetor ou matriz
+        if (self.referenceType())
+            return True
+        # Verifica se é só um tipo básico    
+        elif (self.basicType())  
+            return True  
+        else:
+            return False
 
     def block(self):
         pass    
@@ -290,6 +353,10 @@ class Parser(object):
         else:
             self.tokenIndice += 1
             self.tokenAtual = self.tokens[self.tokenIndice]
+
+    def ultimoToken(self):
+        self.tokenIndice -= 1
+        self.tokenAtual = self.tokens[self.tokenIndice]        
 
     # inicia o parser
     def parse(self):      
