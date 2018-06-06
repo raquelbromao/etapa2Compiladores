@@ -8,6 +8,154 @@ class Parser(object):
         self.tokenAtual = tokenAtual
         self.tokenBuff = []
 
+    def newArrayDeclarator(self):
+        '''
+            REGRA:
+                newArrayDeclarator ::= [ expression ] {[ expression ]} {[ ]}
+        '''
+        if (self.tokenAtual.valor == '['):
+            self.proximoToken()
+
+            if (self.expression()):
+                self.proximoToken()
+
+                if (self.tokenAtual.valor == ']'):
+                    return True
+                else:
+                    print('ERRO')
+                    return False
+
+            else:
+                print('ERRO')
+                return False    
+
+        else:
+            print('ERRO')
+            return False
+
+    def primary(self):
+        '''
+        REGRA:
+            primary ::= parExpression
+                        | this [arguments]
+                        | super (arguments | . <identifier> [arguments])
+                        | literal
+                        | new creator
+                        | qualifiedIdentifier [arguments]
+        '''    
+    if (self.parExpression()):
+        return True
+
+    elif (self.tokenAtual.valor == 'this'):
+        self.proximoToken()
+
+        if (self.tokenAtual.valor == ')' and self.arguments()):
+            return True
+        elif (self.tokenAtual.valor != ')'):
+            return True
+        else:
+            print('ERRO')
+            return False    
+
+    elif (self.tokenAtual.valor == 'super'):
+        self.proximoToken()
+        
+        if (self.arguments()):
+            return True
+
+        elif (self.tokenAtual.valor == '.'):
+            self.proximoToken()
+
+            if (self.analisaIdentificador()):
+                self.proximoToken()    
+
+                if (self.arguments()):
+                    return True
+                else:
+                    return True
+            else:
+                print('ERRO')
+                return False
+
+    elif (self.literal()):
+        return True
+
+    elif (self.tokenAtual.valor == 'new'):
+        self.proximoToken()
+
+        if (self.creator()):
+            return True
+        else:
+            print('ERRO')
+            return False    
+
+    elif (self.qualifiedIdentifier()):
+        self.proximoToken()
+
+        if (self.tokenAtual.valor == ')' and self.arguments()):
+            return True
+        elif (self.tokenAtual.valor != ')'):
+            return True
+        else:
+            print('ERRO')
+            return False
+    else:
+        print('ERRO')
+        return False   
+
+    def parExpression(self):
+        pass                 
+
+    def arrayInitializer(self):
+        '''
+            REGRA:
+                arrayInitializer ::= { [variableInitializer {, variableInitializer}] }
+        '''    
+        if (self.tokenAtual.valor == '{'):
+            self.proximoToken()
+
+            if (self.tokenAtual.valor == '}'):
+                return True
+
+            elif (self.variableInitializer()):
+                return True
+
+            else:
+                print('ERRO')
+                return False        
+        else:
+            print('ERRO')
+            return False    
+
+    def arguments(self):
+        '''
+            REGRA:
+                arguments ::= ( [expression {, expression}] )
+        '''
+        if (self.tokenAtual.valor == '('):
+            self.proximoToken()
+
+            if (self.tokenAtual.valor == ')'):
+                return True
+            elif (self.expression()):
+                self.proximoToken()
+
+                if (self.tokenAtual.valor == ')'):
+                    return True
+                else:
+                    print('ERRO')
+                    return False    
+            else:
+                print('ERRO')
+                return False        
+
+        else:
+            print('ERRO')
+            return False
+
+    def expression(self):
+        pass        
+
     def selector(self):
         '''
             REGRA:
@@ -23,10 +171,10 @@ class Parser(object):
                 elif ():
                     pass
                 else:
-                    print('')
+                    print('ERRO')
                     return False      
             else:
-                print('')
+                print('ERRO')
                 return False
         elif (self.tokenAtual.valor == '['):
                 self.proximoToken()
@@ -37,13 +185,13 @@ class Parser(object):
                     if (self.tokenAtual.valor == ']'):
                         return True   
                     else:
-                        print('')
+                        print('ERRO')
                         return False
                 else:
-                    print('')
+                    print('ERRO')
                     return False               
         else:
-            print('')
+            print('ERRO')
             return False
 
     def literal(self):
@@ -77,7 +225,7 @@ class Parser(object):
                     if (self.tokenAtual.valor == ' \" '):
                         return True
                     else:
-                        print('')
+                        print('ERRO')
                         return False    
             #para <string_literal>
             elif (analisaIdentificador()):
@@ -86,10 +234,10 @@ class Parser(object):
                 if (self.tokenAtual.valor == ' \" '):
                     return True
                 else:
-                    print('')
+                    print('ERRO')
                     return False 
             else:
-                print('')  
+                print('ERRO')  
                 return False         
         # ERRO    
         else:
@@ -522,9 +670,6 @@ class Parser(object):
     def ultimoToken(self):
         self.tokenIndice -= 1
         self.tokenAtual = self.tokens[self.tokenIndice]  
-
-    def salvaToken(self):
-        pass    
 
     # inicia o parser
     def parse(self):      
