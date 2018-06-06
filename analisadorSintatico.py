@@ -23,15 +23,15 @@ class Parser(object):
         '''
         return True
 
-    def classDeclaration(self, token):
+    def classDeclaration(self):
         '''
             REGRA:
             classDeclaration ::= class <identifier> [extends qualifiedIdentifier] classBody
         '''
 
         # VERIFICA EXISTÊNCIA DE CLASS
-        if (token.valor == 'class'):
-            print('\t@Reserved:    < {} >'.format(token.valor))
+        if (self.tokenAtual.valor == 'class'):
+            print('\t@Reserved:    < {} >'.format(self.tokenAtual.valor))
 
             self.proximoToken()
 
@@ -208,8 +208,28 @@ class Parser(object):
         '''
         if self.analisaIdentificador():
             self.proximoToken()
-            self.formalParameters()
-            pass
+            if(self.formalParameters()):
+                if self.block():
+                    return True
+        elif self.tokenAtual.valor == "void" or self.type():
+            self.proximoToken()
+            if self.analisaIdentificador():
+                if self.formalParameters():
+                    if self.block() or self.tokenAtual.valor == ";":
+                        return True
+            elif self.type():
+                if self.variableDeclarators():
+                    return True
+        else:
+            return False
+
+
+    def formalParameters(self):
+        '''
+        REGRA:
+        formalParameters ::= ( [formalParameter {, formalParameter}] )
+
+        '''
         pass
 
     def proximoToken(self):
