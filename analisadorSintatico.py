@@ -4,10 +4,12 @@ class noElemento:
         self.filhoEsquerdo = filhoEsquerdo
         self.filhoDireito = filhoDireito
 
+
 class AST:
     def __init__(self, token, indice):
         self.token = token
         self.indice = indice
+
 
 class Parser(object):
     def __init__(self, tokens, tokenAtual):
@@ -18,7 +20,7 @@ class Parser(object):
     def classBody(self, token):
         '''
             REGRA:
-        '''    
+        '''
         return True
 
     def classDeclaration(self, token):
@@ -39,17 +41,17 @@ class Parser(object):
 
                 self.proximoToken()
 
-                #Analisa se possui extensões
+                # Analisa se possui extensões
                 if (self.tokenAtual.valor == 'extends'):
                     print('\t\t\t@Reserved:    < {} >'.format(self.tokenAtual.valor))
 
-                    self.proximoToken()  
+                    self.proximoToken()
 
                     if (self.qualifiedIdentifier(self.tokenAtual)):
-                        print('\t\t\t\t@Identificador:    < {} >'.format(self.tokenAtual.valor))    
-                
+                        print('\t\t\t\t@Identificador:    < {} >'.format(self.tokenAtual.valor))
+
             else:
-                print('\t\t@Identificador: ERRO: [nome da class não é identificador! por favor, dê outro nome')  
+                print('\t\t@Identificador: ERRO: [nome da class não é identificador! por favor, dê outro nome')
                 return False
 
         else:
@@ -58,27 +60,27 @@ class Parser(object):
 
         return True
 
-    def modifiers(self, token):
+    def modifiers(self):
         '''
             REGRA:
             modifiers ::= {public | protected | private | static | abstratc}
         '''
-        modifiers = ["public", "protected", "private", "static", "abstract"]    
+        modifiers = ["public", "protected", "private", "static", "abstract"]
 
-        if (token.valor in modifiers):
+        if (self.tokenAtual.valor in modifiers):
             return True
         else:
-            return False        
-        
-    def typeDeclaration(self, token):   
+            return False
+
+    def typeDeclaration(self):
         '''
             REGRA:
             typeDeclaration ::= modifiers classDeclaration
         '''
 
         # VERIFICA EXISTENCIA DE MODIFICADOR
-        if (self.modifiers(token)):
-            print('@Reserved:    < {} >'.format(token.valor))
+        if (self.modifiers(self.tokenAtual)):
+            print('@Reserved:    < {} >'.format(self.tokenAtual.valor))
 
             self.proximoToken()
 
@@ -89,35 +91,35 @@ class Parser(object):
             print('@Reserved: ERRO: [faltando modificar para a classe]')
             return False
 
-    def qualifiedIdentifier(self, token):
+    def qualifiedIdentifier(self):
         '''
             REGRA:
             qualifiedIdentifier ::= <identifier> {. <identifier> }
         '''
-        #print('Atual tokenIndice = {}'.format(self.tokenIndice))   
-        #contador = 0
+        # print('Atual tokenIndice = {}'.format(self.tokenIndice))
+        # contador = 0
 
-        if (token.tipo == 'IDENTIFICADOR'):
-            #contador += 1
-            #print('[{}]'.format(contador))
-            return True
-        else: 
-            return False    
-
-    def analisaIdentificador(self, token):
-        if (token.tipo == 'IDENTIFICADOR'):
+        if (self.tokenAtual.tipo == 'IDENTIFICADOR'):
+            # contador += 1
+            # print('[{}]'.format(contador))
             return True
         else:
-            return False    
+            return False
 
-    def analisaPackage(self, token):
-        print('@Reserved:    < {} >'.format(token.valor))
-            
+    def analisaIdentificador(self):
+        if (self.tokenAtual.tipo == 'IDENTIFICADOR'):
+            return True
+        else:
+            return False
+
+    def analisaPackage(self):
+        print('@Reserved:    < {} >'.format(self.tokenAtual.valor))
+
         self.proximoToken()
 
         if (self.qualifiedIdentifier(self.tokenAtual)):
             print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
-        else: 
+        else:
             print('@QualifiedIdentifier:\n\tERRO: [faltando < ; > para concluir!]')
 
         self.proximoToken()
@@ -125,21 +127,21 @@ class Parser(object):
         if (self.tokenAtual.valor == ";"):
             print('\t\t@Delimitador:  < ; >')
         else:
-            print('@Delimitador:\n\tERRO: [faltando < ; > para concluir!]')  
+            print('@Delimitador:\n\tERRO: [faltando < ; > para concluir!]')
 
-        #self.tokenIndice += 1
-        #proximoToken = self.tokens[self.tokenIndice];
+            # self.tokenIndice += 1
+        # proximoToken = self.tokens[self.tokenIndice];
 
         return True
 
-    def analisaImport(self, token):
-        print('@Reserved:    < {} >'.format(token.valor))
-            
+    def analisaImport(self):
+        print('@Reserved:    < {} >'.format(self.tokenAtual.valor))
+
         self.proximoToken()
 
         if (self.qualifiedIdentifier(self.tokenAtual)):
             print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
-        else: 
+        else:
             print('@QualifiedIdentifier:\n\tERRO: [faltando < ; > para concluir!]')
 
         self.proximoToken()
@@ -147,18 +149,18 @@ class Parser(object):
         if (self.tokenAtual.valor == ";"):
             print('\t\t@Delimitador:  < ; >')
         else:
-            print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')  
+            print('@Delimitador:\n\t\tERRO: [faltando < ; > para concluir!]')
 
-        #self.tokenIndice += 1
-        #proximoToken = self.tokens[self.tokenIndice];
+            # self.tokenIndice += 1
+        # proximoToken = self.tokens[self.tokenIndice];
 
         return True
 
-    def compilationUnit(self, token):   
+    def compilationUnit(self):
         '''
             REGRA:
             compilationUnit ::= [package qualifiedIdentifier ;] -> 1 OU 0
-                                {import qualifiedIdentifier ;}  -> 0 OU 1* 
+                                {import qualifiedIdentifier ;}  -> 0 OU 1*
                                 {typeDeclaration} EOF           -> 0 OU 1*
         '''
 
@@ -166,7 +168,7 @@ class Parser(object):
         print('@CompilationUnit_____________________________________________')
 
         # CHECA SE PRIMEIRO TOKEN É PACKAGE
-        if (token.valor == "package" and self.analisaPackage(token)): 
+        if (self.tokenAtual.valor == "package" and self.analisaPackage(self.tokenAtual)):
             self.proximoToken()
 
             # CHECA SE EXISTEM IMPORTS
@@ -188,20 +190,36 @@ class Parser(object):
             if (self.tokenAtual.valor in modifiers and self.typeDeclaration(self.tokenAtual)):
                 self.proximoToken()
 
-        # CHECA SE PRIMEIRO TOKEN É MODIFICADOR DE CLASSE   
+        # CHECA SE PRIMEIRO TOKEN É MODIFICADOR DE CLASSE
         elif (self.tokenAtual.valor in modifiers and self.typeDeclaration(self.tokenAtual)):
-            self.proximoToken()           
+            self.proximoToken()
 
-        return True         
-        
+        return True
+
+    def memberDeclaration(self):
+        '''
+
+        REGRA:
+         memberDecl ::= <identifier> // constructor
+                        formalParameters block
+                        | (void | type) <identifier> // method
+                        formalParameters (block | ;)
+                        | type variableDeclarators ; // field
+        '''
+        if self.analisaIdentificador():
+            self.proximoToken()
+            self.formalParameters()
+            pass
+        pass
+
     def proximoToken(self):
         self.tokenIndice += 1
         self.tokenAtual = self.tokens[self.tokenIndice]
 
     # inicia o parser
-    def parse(self):      
+    def parse(self):
         # checa regra de compilationUnit
-        if (self.compilationUnit(self.tokenAtual)):
+        if (self.compilationUnit()):
             return True
         else:
             return False      
