@@ -6,6 +6,45 @@ class Parser(object):
         self.tokens = tokens
         self.tokenIndice = 0
         self.tokenAtual = tokenAtual
+        self.tokenBuff = []
+
+    def selector(self):
+        '''
+            REGRA:
+                selector ::= . qualifiedIdentifier [arguments] | [ expression ]
+        ''' 
+        if (self.tokenAtual == '.'):
+            self.proximoToken()
+            if (self.qualifiedIdentifier()):
+                self.proximoToken()
+
+                if (self.tokenAtual.valor == '(' and self.arguments()):
+                    return True
+                elif ():
+                    pass
+                else:
+                    print('')
+                    return False      
+            else:
+                print('')
+                return False
+        elif (self.tokenAtual.valor == '['):
+                self.proximoToken()
+
+                if (self.expression()):
+                    self.proximoToken()
+
+                    if (self.tokenAtual.valor == ']'):
+                        return True   
+                    else:
+                        print('')
+                        return False
+                else:
+                    print('')
+                    return False               
+        else:
+            print('')
+            return False
 
     def literal(self):
         '''
@@ -30,11 +69,28 @@ class Parser(object):
         # <string_literal> = <"> <> <">
         elif (self.tokenAtual.valor == ' \" '):
             self.proximoToken();
-            contadorWhile = 0
+
             # para <char_literal>
             if (len[self.tokenAtual.valor] == 1 and analisaIdentificador()):
-                aux = self.tokenAtual.valor
-                re.match('\D|[\s]|[\t]', aux)
+                    self.proximoToken()
+
+                    if (self.tokenAtual.valor == ' \" '):
+                        return True
+                    else:
+                        print('')
+                        return False    
+            #para <string_literal>
+            elif (analisaIdentificador()):
+                self.proximoToken()
+
+                if (self.tokenAtual.valor == ' \" '):
+                    return True
+                else:
+                    print('')
+                    return False 
+            else:
+                print('')  
+                return False         
         # ERRO    
         else:
             return False    
@@ -58,7 +114,7 @@ class Parser(object):
     def variableDeclarator(self):
         '''
             REGRA:
-                variableDeclarator ::= <identifier> [= variableInitializer]
+                variableDeclarator ::= <identifier> [= variableInitializer] -> 0 ou 1*
         '''    
         # Verifica se token é identificador
         if (self.analisaIdentificador()):
@@ -73,10 +129,10 @@ class Parser(object):
                     return True
                 else:
                     print('\n\n\n\n\n\n@variableInitializer: ERRO')
-                    return False    
+                    return False 
+            # se não houver símbolo de atribuição está correto tb e volta        
             else:
-                print('\n\n\n\n\n@Operator: ERRO [faltando < = >]')
-                return False
+                return True
         else:
             print('\n\n\n\n@Identificador: ERRO [não existe identificador para a variável! por favor dê um nome]')
             return False
@@ -264,7 +320,7 @@ class Parser(object):
     def classDeclaration(self):
         '''
             REGRA:
-            classDeclaration ::= class <identifier> [extends qualifiedIdentifier] classBody
+                classDeclaration ::= class <identifier> [extends qualifiedIdentifier] classBody
         '''
 
         # VERIFICA EXISTÊNCIA DE CLASS
@@ -316,7 +372,7 @@ class Parser(object):
     def modifiers(self):
         '''
             REGRA:
-            modifiers ::= {public | protected | private | static | abstratc}
+                modifiers ::= {public | protected | private | static | abstratc}
         '''
         modifiers = ["public", "protected", "private", "static", "abstract"]    
 
@@ -328,7 +384,7 @@ class Parser(object):
     def typeDeclaration(self):   
         '''
             REGRA:
-            typeDeclaration ::= modifiers classDeclaration
+                typeDeclaration ::= modifiers classDeclaration
         '''
 
         # VERIFICA EXISTENCIA DE MODIFICADOR
@@ -347,7 +403,7 @@ class Parser(object):
     def qualifiedIdentifier(self):
         '''
             REGRA:
-            qualifiedIdentifier ::= <identifier> {. <identifier> }
+                qualifiedIdentifier ::= <identifier> {. <identifier> }
         '''
         #print('Atual tokenIndice = {}'.format(self.tokenIndice))   
         #contador = 0
@@ -417,9 +473,9 @@ class Parser(object):
     def compilationUnit(self):   
         '''
             REGRA:
-            compilationUnit ::= [package qualifiedIdentifier ;] -> 1 OU 0
-                                {import qualifiedIdentifier ;}  -> 0 OU 1* 
-                                {typeDeclaration} EOF           -> 0 OU 1*
+                compilationUnit ::= [package qualifiedIdentifier ;] -> 1 OU 0
+                                    {import qualifiedIdentifier ;}  -> 0 OU 1* 
+                                    {typeDeclaration} EOF           -> 0 OU 1*
         '''
 
         modifiers = ["public", "protected", "private", "static", "abstract"]
