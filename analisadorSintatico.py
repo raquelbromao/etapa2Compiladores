@@ -15,6 +15,89 @@ class Parser(object):
         self.tokenIndice = 0
         self.tokenAtual = tokenAtual
 
+    def variableInitializer(self):
+        '''
+            REGRA:
+                variableInitializer ::= arrayInitializer | expression
+        '''
+        # Avalia se é regra arrayInitializer
+        if (self.arrayInitializer()):
+            return True
+        # Avalia se é regra expression    
+        elif (self.expression()):
+            return True
+        # ERRO    
+        else:
+            print('\n\n\n\n\n\n@variableInitializer: ERRO [esperado arrayInitializer ou expression]')
+            return False
+
+
+    def variableDeclarator(self):
+        '''
+            REGRA:
+                variableDeclarator ::= <identifier> [= variableInitializer]
+        '''    
+        # Verifica se token é identificador
+        if (self.analisaIdentificador()):
+            self.proximoToken()
+
+            #Verifica se há símbolo de atribuição
+            if(self.tokenAtual.valor == '='):
+                self.proximoToken()
+
+                # Verifica regra variableInitializer
+                if(self.variableInitializer()):
+                    return True
+                else:
+                    print('\n\n\n\n\n\n@variableInitializer: ERRO')
+                    return False    
+            else:
+                print('\n\n\n\n\n@Operator: ERRO [faltando < = >]')
+                return False
+        else:
+            print('\n\n\n\n@Identificador: ERRO [não existe identificador para a variável! por favor dê um nome]')
+            return False
+
+
+    def variableDeclarators(self):
+        '''
+            REGRA:
+                variableDeclarators ::= variableDeclarator {, variableDeclarator} -> 0 ou 1* variáveis separadas por < , >
+        '''    
+        if (self.variableDeclarator()):
+            return True
+        else:
+            print('\n\n\n\n@variableDeclarator: ERRO [declaração da variável]')
+            return False
+
+    def localVariableDeclarationStatement(self):
+        '''
+            REGRA:
+                localVariableDeclarationStatement ::= type variableDeclarators ;
+        '''    
+        
+        print('@localVariableDeclarationStatement_______________')
+        #Avalia existência de declaração de tipo antes da variável
+        if (self.typeAnalyser()):
+            self.proximoToken()
+
+            #Avalia a regra variableDeclarators()
+            if (self.variableDeclarators()):
+                self.proximoToken()
+
+                if (self.tokenAtual.valor == ';'):
+                    return True
+                else:
+                    print('\n\n\n@Delimitador: ERRO: [faltando < ; >]')
+                    return False
+
+            else:
+                print('\n\n@variableDeclarators: ERRO: [declaração da variável]')
+                return False
+        else:
+            print('\n@type: ERRO: [falta declaração de tipo de variável]')
+            return False
+
     def basicType(self):
         '''
             REGRA:
@@ -76,10 +159,10 @@ class Parser(object):
                 type ::= referenceType | basicType
         '''
         # Verifica se o tipo é vetor ou matriz
-        if (self.referenceType())
+        if (self.referenceType()):
             return True
         # Verifica se é só um tipo básico    
-        elif (self.basicType())  
+        elif (self.basicType()):  
             return True  
         else:
             return False
