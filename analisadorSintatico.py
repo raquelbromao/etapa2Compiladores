@@ -55,7 +55,6 @@ class Parser(object):
             print('\n\n\n\n\n\n@variableInitializer: ERRO [esperado arrayInitializer ou expression]')
             return False
 
-
     def variableDeclarator(self):
         '''
             REGRA:
@@ -81,7 +80,6 @@ class Parser(object):
         else:
             print('\n\n\n\n@Identificador: ERRO [não existe identificador para a variável! por favor dê um nome]')
             return False
-
 
     def variableDeclarators(self):
         '''
@@ -363,6 +361,14 @@ class Parser(object):
 
     def analisaIdentificador(self):
         if (self.tokenAtual.tipo == 'IDENTIFICADOR'):
+            return True
+        else:
+            return False    
+
+    def analisaOperador(self):
+        operadores = ["+", "++", "-", "--", "/", "%", "*", "=", "+=", "==", "&&", ">", "<=", "instanceof"]
+        
+        if (self.tokenAtual.valor in operadores):
             return True
         else:
             return False    
