@@ -43,68 +43,90 @@ class Parser(object):
                         | new creator
                         | qualifiedIdentifier [arguments]
         '''    
-    if (self.parExpression()):
-        return True
-
-    elif (self.tokenAtual.valor == 'this'):
-        self.proximoToken()
-
-        if (self.tokenAtual.valor == ')' and self.arguments()):
-            return True
-        elif (self.tokenAtual.valor != ')'):
-            return True
-        else:
-            print('ERRO')
-            return False    
-
-    elif (self.tokenAtual.valor == 'super'):
-        self.proximoToken()
-        
-        if (self.arguments()):
+        if (self.parExpression()):
             return True
 
-        elif (self.tokenAtual.valor == '.'):
+        elif (self.tokenAtual.valor == 'this'):
             self.proximoToken()
 
-            if (self.analisaIdentificador()):
-                self.proximoToken()    
+            if (self.tokenAtual.valor == ')' and self.arguments()):
+                return True
+            elif (self.tokenAtual.valor != ')'):
+                return True
+            else:
+                print('ERRO')
+                return False    
 
-                if (self.arguments()):
-                    return True
+        elif (self.tokenAtual.valor == 'super'):
+            self.proximoToken()
+            
+            if (self.arguments()):
+                return True
+
+            elif (self.tokenAtual.valor == '.'):
+                self.proximoToken()
+
+                if (self.analisaIdentificador()):
+                    self.proximoToken()    
+
+                    if (self.arguments()):
+                        return True
+                    else:
+                        return True
                 else:
-                    return True
+                    print('ERRO')
+                    return False
+
+        elif (self.literal()):
+            return True
+
+        elif (self.tokenAtual.valor == 'new'):
+            self.proximoToken()
+
+            if (self.creator()):
+                return True
+            else:
+                print('ERRO')
+                return False    
+
+        elif (self.qualifiedIdentifier()):
+            self.proximoToken()
+
+            if (self.tokenAtual.valor == ')' and self.arguments()):
+                return True
+            elif (self.tokenAtual.valor != ')'):
+                return True
             else:
                 print('ERRO')
                 return False
-
-    elif (self.literal()):
-        return True
-
-    elif (self.tokenAtual.valor == 'new'):
-        self.proximoToken()
-
-        if (self.creator()):
-            return True
         else:
             print('ERRO')
-            return False    
-
-    elif (self.qualifiedIdentifier()):
-        self.proximoToken()
-
-        if (self.tokenAtual.valor == ')' and self.arguments()):
-            return True
-        elif (self.tokenAtual.valor != ')'):
-            return True
-        else:
-            print('ERRO')
-            return False
-    else:
-        print('ERRO')
-        return False   
+            return False   
 
     def parExpression(self):
-        pass                 
+        '''
+        REGRA:
+        parExpression ::= ( expression )
+        '''
+        if self.tokenAtual.valor == "(":
+            self.proximoToken()
+            if self.expression():
+                self.proximoToken()
+                if self.tokenAtual.valor == ")":
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        return False
+
+    def statementExpression(self):
+        '''
+        REGRA:
+        statementExpression ::= expression // but must have side-e↵ect, eg i++
+        '''
+        #N sei oq caralhos é esse side-effect
+        return self.expression()               
 
     def arrayInitializer(self):
         '''
@@ -154,7 +176,165 @@ class Parser(object):
             return False
 
     def expression(self):
-        pass        
+        '''
+        REGRA:
+        expression ::= assignmentExpression
+        '''
+        return self.assignmentExpression()
+
+    def assignmentExpression(self):
+        '''
+        REGRA:
+        assignmentExpression ::= conditionalAndExpression // must be a valid lhs
+                                    [(= | +=) assignmentExpression
+        '''
+        if self.conditionalAndExpression():
+            self.proximoToken()
+            aux = ["=", "+="]
+            if self.tokenAtual.valor in aux:
+                self.proximoToken()
+                if self.assignmentExpression():
+                    return True
+                else:
+                    return False
+            return True
+        
+    def conditionalAndExpression(self):
+        '''
+        REGRA:
+        conditionalAndExpression ::= equalityExpression // level 10
+                                    {&& equalityExpression}
+        '''
+        if self.equalityExpression():
+            self.proximoToken()
+            while self.tokenAtual.valor == "&&":
+                self.proximoToken()
+                if not self.equalityExpression():
+                    return False
+                self.proximoToken()
+            return True
+
+    def equalityExpression(self):
+        '''
+        REGRA:
+        equalityExpression ::= relationalExpression // level 6
+                                {== relationalExpression}
+        '''
+        if self.relationalExpression():
+            self.proximoToken()
+            while self.tokenAtual.valor == "==":
+                self.proximoToken()
+                if not self.relationExpression():
+                    return False
+                self.proximoToken()
+            return True
+        
+    def additiveExpression(self):
+        '''
+        REGRA:
+        additiveExpression ::= multiplicativeExpression // level 3
+                                {(+ | -) multiplicativeExpression}
+        '''
+        if self.multiplicativeExpression():
+            self.proximoToken()
+            aux = ["+", "-"]
+
+            while self.tokenAtual.valor in aux:
+                self.proximoToken()
+
+                if not self.multiplicativeExpression:
+                    return False
+
+                self.proximoToken()
+                
+            return True
+
+    def multiplicativeExpression(self):
+        '''
+        REGRA:
+         multiplicativeExpression ::= unaryExpression // level 2
+                                    {* unaryExpression}
+        '''
+        if self.unaryExpression():
+            self.proximoToken()
+            while self.tokenAtual.valor == "*":
+                self.proximoToken()
+                if not self.unaryExpression:
+                    return False
+                self.proximoToken()
+            return True
+
+    def unaryExpression(self):
+        '''
+        REGRA:
+        unaryExpression ::= ++ unaryExpression // level 1
+                            | - unaryExpression
+                            | simpleUnaryExpression
+        '''
+        if self.tokenAtual.valor == "++":
+            self.proximoToken()
+            if self.unaryExpression():
+                return True
+            else:
+                False
+        elif self.tokenAtual.valor == "-":
+            self.proximoToken()
+            if self.unaryExpression():
+                return True
+            else:
+                return True
+        return self.simpleUnaryExpression()
+
+    def simpleUnaryExpression(self):
+        '''
+        REGRA:
+        simpleUnaryExpression ::= ! unaryExpression
+                                | ( basicType ) unaryExpression //cast
+                                | ( referenceType ) simpleUnaryExpression // cast
+                                | postfixExpression
+        '''
+        if self.tokenAtual.valor == "!":
+            self.proximoToken()
+            return self.unaryExpression()
+        elif self.tokenAtual.valor == "(":
+            self.proximoToken()
+            if self.basicType():
+                self.proximoToken()
+                if self.tokenAtual.valor == ")":
+                    self.proximoToken()
+                    if self.unaryExpression():
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+            elif self.referenceType():
+                self.proximoToken()
+                if self.tokenAtual.valor == ")":
+                    self.proximoToken()
+                    if self.simpleUnaryExpression():
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+        elif self.postfixExpression():
+            return True
+        else:
+            return False
+
+    def postfixExpression(self):
+        '''
+        REGRA:
+        postfixExpression ::= primary {selector} {--}
+        '''
+        if self.primary():
+            self.proximoToken()
+            while self.selector():
+                self.proximoToken()
+            while self.tokenAtual.valor == "--":
+                self.proximoToken()
+            return True                   
 
     def selector(self):
         '''
@@ -379,6 +559,44 @@ class Parser(object):
     def variableDeclarators(self):
         pass    
 
+    def creator(self):
+        '''
+        REGRA:
+        creator ::= (basicType | qualifiedIdentifier)
+                    ( arguments
+                    | [ ] {[ ]} [arrayInitializer]
+                    | newArrayDeclarator )
+        '''
+        if self.basicType() or self.qualifiedIdentifier():
+            self.proximoToken()
+            if self.tokenAtual.valor == "(":
+                self.proximoToken()
+                if self.arguments():
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        elif self.tokenAtual.valor == "[":
+            self.proximoToken()
+            if self.tokenAtual.valor == "]":
+                self.proximoToken()
+                while self.tokenAtual.valor == "[":
+                    self.proximoToken()
+                    if not self.tokenAtual.valor == "]":
+                        return False
+                if self.arrayInitializer():
+                    self.proximoToken()
+                return True
+        elif self.newArrayDeclarator():
+            self.proximoToken()
+            if self.tokenAtual.valor == ")":
+                return True
+            else:
+                return False
+        else:
+            return False    
+
     def typeAnalyser(self):
         '''
             REGRA:
@@ -394,14 +612,108 @@ class Parser(object):
             return False
 
     def block(self):
-        pass    
+        '''
+            REGRA:
+                block ::= { {blockStatement} }
+        '''
+        if self.tokenAtual.valor == "{":
+            self.proximoToken()
+            while self.blockStatement():
+                self.proximoToken()
+            if self.tokenAtual.valor != "}":
+                return False
+            else:
+                return True
+        return False  
+
+    def blockStatement(self):
+        '''
+            REGRA:
+                blockStatement ::= localVariableDeclarationStatement
+                                    | statement
+        '''
+        if self.localVariableDeclarationStatement():
+            return True
+        elif self.statement():
+            return True
+        else:
+            return False    
+
+    def statement(self):
+        '''
+        REGRA:
+        statement ::= block
+                    | <identifier> : statement
+                    | if parExpression statement [else statement]
+                    | while parExpression statement
+                    | return [expression] ;
+                    | ;
+                    | statementExpression ;
+        '''
+        if self.block():
+            return True
+        elif self.analisaIdentificador():
+            self.proximoToken()
+            if self.tokenAtual.valor == ":":
+                self.proximoToken()
+                if self.statement():
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        elif self.tokenAtual.valor == "if":
+            self.proximoToken()
+            if self.parExpression():
+                self.proximoToken()
+                if self.statement():
+                    self.proximoToken()
+                    if self.tokenAtual.valor == "else":
+                        self.proximoToken()
+                        if self.statement():
+                            return True
+                        else:
+                            return False
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        elif self.tokenAtual.valor == "while":
+            self.proximoToken()
+            if self.parExpression():
+                if self.statement():
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        elif self.tokenAtual.valor == "return":
+            self.proximoToken()
+            if self.expression():
+                self.proximoToken()
+            if self.tokenAtual.valor == ";":
+                return True
+            else:
+                return False        
 
     def formalParameters(self):
         '''
-            REGRA:
-                formalParameters ::= ( [formalParameter {, formalParameter}] )
+        REGRA:
+        formalParameters ::= ( [formalParameter {, formalParameter}] )
         '''
-        pass   
+        if self.tokenAtual.valor == "(":
+            self.proximoToken()
+            while self.formalParameter():
+                self.proximoToken()
+                if self.tokenAtual.valor != ",":
+                    if self.tokenAtual.valor == ")":
+                        return True
+                    else:
+                        return False
+                self.proximoToken()
+            if self.tokenAtual == ")":
+                return True   
 
     def memberDecl(self):
         '''
