@@ -230,7 +230,54 @@ class Parser(object):
         formalParameters ::= ( [formalParameter {, formalParameter}] )
 
         '''
-        pass
+        if self.tokenAtual.valor == "(":
+            self.proximoToken()
+            while self.formalParameter():
+                self.proximoToken()
+                if self.tokenAtual.valor != ",":
+                    return False
+                self.proximoToken()
+            if self.tokenAtual == ")":
+                return True
+
+    def type(self):
+        '''
+        REGRA:
+        type ::= referenceType | basicType
+
+        '''
+        return self.referenceType() or self.basicType()
+
+    def basicType(self):
+        '''
+        REGRA:
+        basicType ::= boolean | char | int
+        '''
+        aux = self.tokenAtual.valor
+        if aux == "boolean" or aux == "char" or aux == "int":
+            return True
+        else:
+            return False
+
+    def referenceType(self):
+        '''
+        REGRA:
+        referenceType ::= basicType [ ] {[ ]}
+                        | qualifiedIdentifier {[ ]}
+        '''
+        return self.basicType() or self.qualifiedIdentifier()
+
+    def block(self):
+        '''
+        REGRA:
+        block ::= { {blockStatement} }
+        '''
+        if self.tokenAtual.valor == "{":
+            self.proximoToken()
+            while self.blockStatement():
+                pass
+        #terminando ainda
+
 
     def proximoToken(self):
         self.tokenIndice += 1
