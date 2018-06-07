@@ -135,11 +135,14 @@ class Parser(object):
         '''    
         if (self.tokenAtual.valor == '{'):
             self.proximoToken()
-
+            if self.variableInitializer():
+                self.proximoToken()
+            while self.tokenAtual.valor == ",":
+                self.proximoToken()
+                if not self.variableInitializer():
+                    return False
+                self.proximoToken()
             if (self.tokenAtual.valor == '}'):
-                return True
-
-            elif (self.variableInitializer()):
                 return True
 
             else:
@@ -157,20 +160,19 @@ class Parser(object):
         if (self.tokenAtual.valor == '('):
             self.proximoToken()
 
-            if (self.tokenAtual.valor == ')'):
-                return True
-            elif (self.expression()):
+            if (self.expression()):
+                self.proximoToken()
+            while self.tokenAtual.valor == ",":
+                self.proximoToken()
+                if not self.expression():
+                    return False
                 self.proximoToken()
 
-                if (self.tokenAtual.valor == ')'):
-                    return True
-                else:
-                    print('ERRO')
-                    return False    
+            if (self.tokenAtual.valor == ')'):
+                return True
             else:
                 print('ERRO')
-                return False        
-
+                return False
         else:
             print('ERRO')
             return False
@@ -786,7 +788,6 @@ class Parser(object):
             # VERIFICA EXISTÊNCIA DE NOME PARA A CLASSE
             if (self.analisaIdentificador()):
                 print('\t\t@Identificador:    < {} >'.format(self.tokenAtual.valor))
-
                 self.proximoToken()
 
                 #Analisa se possui extensões
@@ -895,9 +896,6 @@ class Parser(object):
         # checa se nome do package é identificador qualificado
         if (self.qualifiedIdentifier()):
             print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
-
-            self.proximoToken()
-
             # Checa se p´roximo token é ;
             if (self.tokenAtual.valor == ";"):
                 print('\t\t@Delimitador:  < ; >')
@@ -916,8 +914,6 @@ class Parser(object):
 
         if (self.qualifiedIdentifier()):
             print('\t@QualifiedIdentifier:  < {} >'.format(self.tokenAtual.valor))
-            self.proximoToken()
-
             if (self.tokenAtual.valor == ";"):
                 print('\t\t@Delimitador:  < ; >')
                 return True
